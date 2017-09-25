@@ -1,4 +1,4 @@
-# kadnet.apiv2.dotnet
+# Kadnet.API.Client
 Kadnet API v2 dotNet
 
 Full description API on postman:  
