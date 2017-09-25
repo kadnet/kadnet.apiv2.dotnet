@@ -8,7 +8,7 @@ https://documenter.getpostman.com/view/2625849/kadnet-api/6tgTfhm#intro
 * Generate your private apikey on https://api.kadnet.ru
 * Download .net client project
 * Add Kadnet.Api.Client project to your solution
-* Use it
+* Use it  
  var client = new Client(apikey);  
  var result = client.CheckNumbers("66:41:0402033:2266;66:41:0402033:2267", "just test").Result;
   
