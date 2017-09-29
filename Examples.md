@@ -7,6 +7,6 @@
 ```
 git clone https://github.com/kadnet/kadnet.apiv2.dotnet.git
 ```
-или из веб интерфейса по ссылке
-https://github.com/kadnet/kadnet.apiv2.dotnet
-![Image of download screen](https://github.com/kadnet/kadnet.apiv2.dotnet/Images/01.downloadApiclient.gif)
+или из веб интерфейса по ссылке<space><space>
+https://github.com/kadnet/kadnet.apiv2.dotnet<space><space>
+![Image of download screen](https://github.com/kadnet/kadnet.apiv2.dotnet/blob/master/Images/01.downloadApiClient.gif)
