@@ -19,7 +19,7 @@ namespace Kadnet.Api
         private readonly string _token;
         private readonly string _params;
 
-        public Client(string token, string url = "https://api.kadnet.ru/v2/", string urlparam="")
+        public Client(string token, string urlparam = "", string url = "https://api.kadnet.ru/v2/")
         {
             _token = token;
             _baseUrl = url;
