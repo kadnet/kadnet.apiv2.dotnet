@@ -19,7 +19,7 @@ namespace Kadnet.Api.ClientTest
         public void CheckNumbers_GetCadastralObjectArrayWith2Elements()
         {
             var client = new Client(apikey);
-            var objectArray = client.CheckNumbers("66:41:0402033:2266;66:41:0402033:2267", "just test").Result.ToArray();
+            var objectArray = client.CheckNumbersAsyncTask("66:41:0402033:2266;66:41:0402033:2267", "just test").Result.ToArray();
             Assert.That(objectArray.Length, Is.EqualTo(2));
         }
 
@@ -27,7 +27,7 @@ namespace Kadnet.Api.ClientTest
         public void CheckNumbersAsJson_GetJsonString()
         {
             var client = new Client(apikey);
-            var json = client.CheckNumbersAsJson("66:41:0402033:2266;66:41:0402033:2267", "just test").Result;
+            var json = client.CheckNumbersAsJsonAsyncTask("66:41:0402033:2266;66:41:0402033:2267", "just test").Result;
             StringAssert.StartsWith("{\"Result\":true", json);
         }
 
@@ -35,7 +35,7 @@ namespace Kadnet.Api.ClientTest
         public void CheckAddress_GetCadastralObjectArrayWithElements()
         {
             var client = new Client(apikey);
-            var objectArray = client.CheckAddress("Екатеринбург, ул. Малопрудная 5").Result.ToArray();
+            var objectArray = client.CheckAddressAsyncTask("Екатеринбург, ул. Малопрудная 5").Result.ToArray();
             Assert.That(objectArray.Length, Is.GreaterThan(1));
         }
 
@@ -43,7 +43,7 @@ namespace Kadnet.Api.ClientTest
         public void CheckAddressAsJson_GetJsonString()
         {
             var client = new Client(apikey);
-            var json = client.CheckAddressAsJson("Екатеринбург, ул. Малопрудная 5").Result;
+            var json = client.CheckAddressAsJsonAsyncTask("Екатеринбург, ул. Малопрудная 5").Result;
             StringAssert.StartsWith("{\"Result\":true", json);
         }
 
@@ -60,7 +60,7 @@ namespace Kadnet.Api.ClientTest
                 ObjectType = "Участок",
                 Region = "66"
             };
-            var ticket = client.CreateRequest(coi, RequestType.EgrnObject).Result;
+            var ticket = client.CreateRequestAsyncTask(coi, RequestType.EgrnObject).Result;
             Assert.That(ticket.Result, Is.True);
         }
 
@@ -68,7 +68,7 @@ namespace Kadnet.Api.ClientTest
         public void TestGetInfo_GetRequestInfo()
         {
             var client = new Client(apikey);
-            var ri = client.GetRequestInfo(Guid.Parse("5079cfff-da4d-403a-a7c2-9cf79a83f06e")).Result;
+            var ri = client.GetRequestInfoAsyncTask(Guid.Parse("5079cfff-da4d-403a-a7c2-9cf79a83f06e")).Result;
             Assert.AreEqual(ri.Status, "Завершен");
         }
 
@@ -76,7 +76,7 @@ namespace Kadnet.Api.ClientTest
         public void TestResult_GetFileResultEntry()
         {
             var client = new Client(klimapikey);
-            var ri = client.GetResult(Guid.Parse("1d8b64b9-30df-4d7f-b678-3ba76c039fbe"), ResultFormat.Html).Result;
+            var ri = client.GetResultAsyncTask(Guid.Parse("1d8b64b9-30df-4d7f-b678-3ba76c039fbe"), ResultFormat.Html).Result;
             File.WriteAllBytes($"D:\\{ri.Name}",ri.Data?.ToArray());
             Assert.NotNull(ri?.Data);
         }
@@ -85,7 +85,7 @@ namespace Kadnet.Api.ClientTest
         public void TestHistory_GetHistoryEntryArray()
         {
             var client = new Client(klimapikey);
-            var ri = client.GetHistory(Guid.Parse("1d8b64b9-30df-4d7f-b678-3ba76c039fbe")).Result;
+            var ri = client.GetHistoryAsyncTask(Guid.Parse("1d8b64b9-30df-4d7f-b678-3ba76c039fbe")).Result;
             Assert.IsTrue(ri.Any());
         }
 
@@ -93,7 +93,7 @@ namespace Kadnet.Api.ClientTest
         public void TestDelete()
         {
             var client = new Client(klimapikey);
-            var resFlag = client.Delete(Guid.Parse("5079cfff-da4d-403a-a7c2-9cf79a83f06e")).Result;
+            var resFlag = client.DeleteAsyncTask(Guid.Parse("5079cfff-da4d-403a-a7c2-9cf79a83f06e")).Result;
             Assert.IsTrue(resFlag);
         }
       
