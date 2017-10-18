@@ -77,7 +77,7 @@ namespace Kadnet.Api.ClientTest
         {
             var client = new Client(klimapikey);
             var ri = client.GetResultAsyncTask(Guid.Parse("1d8b64b9-30df-4d7f-b678-3ba76c039fbe"), ResultFormat.Html).Result;
-            File.WriteAllBytes($"D:\\{ri.Name}",ri.Data?.ToArray());
+            File.WriteAllBytes($"D:\\{ri.Name}", ri.Data?.ToArray());
             Assert.NotNull(ri?.Data);
         }
 
@@ -95,6 +95,14 @@ namespace Kadnet.Api.ClientTest
             var client = new Client(klimapikey);
             var resFlag = client.DeleteAsyncTask(Guid.Parse("5079cfff-da4d-403a-a7c2-9cf79a83f06e")).Result;
             Assert.IsTrue(resFlag);
+        }
+
+        [Test]
+        public void TestGetResultWithCyrrilicsName()
+        {
+            var client = new Client(klimapikey);
+            var res = client.GetOrderResult(Guid.Parse("19092c7b-b38b-4039-8f29-8c47b5a0af01"), ResultFormat.Pdf);
+            Assert.IsTrue(res.Name.Contains("Заказ"));
         }
       
     }

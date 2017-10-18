@@ -453,7 +453,7 @@ namespace Kadnet.Api
             {
                 var fr = new FileResult();
                 var name = response.Headers.FirstOrDefault(h => h.Name == "Filename");
-                fr.Name = name?.Value.ToString() ?? $"result.{format}";
+                fr.Name = name != null ? Base64Decode(name.Value.ToString()) : $"result.{format}";
                 fr.Data = new MemoryStream(response.RawBytes);
                 return fr;
             }
@@ -480,7 +480,7 @@ namespace Kadnet.Api
             {
                 var fr = new FileResult();
                 var name = response.Headers.FirstOrDefault(h => h.Name == "Filename");
-                fr.Name = name?.Value.ToString() ?? $"result.{format}";
+                fr.Name = name != null ? Base64Decode(name.Value.ToString()) : $"result.{format}";
                 fr.Data = new MemoryStream(response.RawBytes);
                 return fr;
             }
@@ -600,7 +600,7 @@ namespace Kadnet.Api
             {
                 var fr = new FileResult();
                 var name = response.Headers.FirstOrDefault(h => h.Name == "Filename");
-                fr.Name = name?.Value.ToString() ?? $"result.{format}";
+                fr.Name = name != null ? Base64Decode(name.Value.ToString()) : $"result.{format}";
                 fr.Data = new MemoryStream(response.RawBytes);
                 return fr;
             }
@@ -615,7 +615,7 @@ namespace Kadnet.Api
         public FileResult GetOrderResult(Guid requestId, ResultFormat format)
         {
             var client = new RestClient(_baseUrl);
-            var request = new RestRequest("Requests/OrderResult/{requestId}?api-key={apikey{params}", Method.GET);
+            var request = new RestRequest("Requests/OrderResult/{requestId}?api-key={apikey}{params}", Method.GET);
             request.AddHeader("content-type", "application/octet-stream");
             request.AddUrlSegment("apikey", _token);
             request.AddUrlSegment("params", _params);
@@ -626,11 +626,17 @@ namespace Kadnet.Api
             {
                 var fr = new FileResult();
                 var name = response.Headers.FirstOrDefault(h => h.Name == "Filename");
-                fr.Name = name?.Value.ToString() ?? $"result.{format}";
+                fr.Name = name != null ? Base64Decode(name.Value.ToString()) : $"result.{format}";
                 fr.Data = new MemoryStream(response.RawBytes);
                 return fr;
             }
             throw new Exception($"Cannot pull request information. Request Id={requestId}. Response status={response.ResponseStatus} Send this information to support@kadnet.ru");
+        }
+
+        private static string Base64Decode(string base64EncodedData)
+        {
+            var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);
+            return System.Text.Encoding.UTF8.GetString(base64EncodedBytes);
         }
     }
 }
