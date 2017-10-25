@@ -14,7 +14,7 @@ namespace Kadnet.Api.Models
         public string RosreestrRequestNumber {get;set;}
         public string Comment { get; set; }
         public DateTime Date { get; set; }
-        public DateTime RequestDateByRosreestr { get; set; }
+        public DateTime? RequestDateByRosreestr { get; set; }
         public string Region { get; set; }
         public string ObjectType { get; set; }
         public string Status { get; set; }
