@@ -35,8 +35,25 @@ namespace Kadnet.Api.ClientTest
         public void CheckAddress_GetCadastralObjectArrayWithElements()
         {
             var client = new Client(apikey);
-            var objectArray = client.CheckAddressAsyncTask("Екатеринбург, ул. Малопрудная 5").Result.ToArray();
+            var objectArray = client.CheckAddressAsyncTask("Екатеринбург, ул. щорса 109").Result.ToArray();
             Assert.That(objectArray.Length, Is.GreaterThan(1));
+        }
+
+        [Test]
+        public void CheckList_GetListRequests()
+        {
+            var client = new Client(apikey);
+            var objectArray = client.GetListRequestInfoAsyncTask(20, 4).Result.ToArray();
+            Assert.That(objectArray.Length, Is.EqualTo(20));
+        }
+
+        [Test]
+        public void CheckListById_GetListRequests()
+        {
+            var client = new Client(apikey);
+            var list = new Guid[] { Guid.Parse("6ff23ab5-5996-44fb-831a-00c17a98a6d6"), Guid.Parse("dc0d91f2-62f1-4d0b-b451-72ea3d096cf4") };
+            var objectArray = client.GetListRequestInfoAsyncTask(list).Result.ToArray();
+            Assert.That(objectArray.Length, Is.EqualTo(20));
         }
 
         [Test]
@@ -68,7 +85,7 @@ namespace Kadnet.Api.ClientTest
         public void TestGetInfo_GetRequestInfo()
         {
             var client = new Client(apikey);
-            var ri = client.GetRequestInfoAsyncTask(Guid.Parse("5079cfff-da4d-403a-a7c2-9cf79a83f06e")).Result;
+            var ri = client.GetRequestInfoAsyncTask("5079cfff-da4d-403a-a7c2-9cf79a83f06e").Result;
             Assert.AreEqual(ri.Status, "Завершен");
         }
 
@@ -97,13 +114,5 @@ namespace Kadnet.Api.ClientTest
             Assert.IsTrue(resFlag);
         }
 
-        [Test]
-        public void TestGetResultWithCyrrilicsName()
-        {
-            var client = new Client(klimapikey);
-            var res = client.GetOrderResult(Guid.Parse("19092c7b-b38b-4039-8f29-8c47b5a0af01"), ResultFormat.Pdf);
-            Assert.IsTrue(res.Name.Contains("Заказ"));
-        }
-      
     }
 }

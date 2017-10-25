@@ -351,7 +351,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId">request id</param>
         /// <returns></returns>
-        public async Task<RequestInfo> GetRequestInfoAsyncTask(Guid requestId)
+        public async Task<RequestInfo> GetRequestInfoAsyncTask<T>(T requestId)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Info/{requestId}?api-key={apikey}{_params}", Method.GET);
@@ -366,6 +366,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<RequestInfo>(data["Data"].ToString());
+                throw new FormatException($"Неожиданный ответ от сервера: {data}");
             }
             throw new Exception($"Cannot pull request information. Request Id={requestId}. Send this information to support@kadnet.ru");
         }
@@ -375,7 +376,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId">request id</param>
         /// <returns></returns>
-        public RequestInfo GetRequestInfo(Guid requestId)
+        public RequestInfo GetRequestInfo<T>(T requestId)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Info/{requestId}?api-key={apikey}{_params}", Method.GET);
@@ -398,7 +399,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId">request id</param>
         /// <returns></returns>
-        public async Task<string> GetRequestInfoAsJsonAsyncTask(Guid requestId)
+        public async Task<string> GetRequestInfoAsJsonAsyncTask<T>(T requestId)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Info/{requestId}?api-key={apikey}{_params}", Method.GET);
@@ -418,7 +419,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId">request id</param>
         /// <returns></returns>
-        public string GetRequestInfoAsJson(Guid requestId)
+        public string GetRequestInfoAsJson<T>(T requestId)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Info/{requestId}?api-key={apikey}{_params}", Method.GET);
@@ -433,12 +434,196 @@ namespace Kadnet.Api
         }
 
         /// <summary>
+        /// Async Get list of request information 
+        ///  </summary>
+        /// <param name="take">Count of responce list</param>
+        /// <param name="skip">Numbers of skip entries</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<RequestInfo>> GetListRequestInfoAsyncTask(int take=1000, int skip=0)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/List/?api-key={apikey}&Take={_take}&Skip={_skip}", Method.GET);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddUrlSegment("_take", take.ToString());
+            request.AddUrlSegment("_skip", skip.ToString());
+            var cancellationToken = new CancellationToken();
+            var response = await client.ExecuteTaskAsync(request, cancellationToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                if ((bool)data["Result"])
+                    return JsonConvert.DeserializeObject<IEnumerable<RequestInfo>>(data["Data"].ToString());
+            }
+            throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
+        }
+
+        /// <summary>
+        /// Get request information by request Id
+        /// </summary>
+        /// <param name="take">Count of responce list</param>
+        /// <param name="skip">Numbers of skip entries</param>
+        /// <returns></returns>
+        public IEnumerable<RequestInfo> GetListRequestInfo(int take = 1000, int skip = 0)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/List/?api-key={apikey}&Take={_take}&Skip={_skip}", Method.GET);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddUrlSegment("_take", take.ToString());
+            request.AddUrlSegment("_skip", skip.ToString());
+            var response = client.Execute(request);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                if ((bool)data["Result"])
+                    return JsonConvert.DeserializeObject<IEnumerable<RequestInfo>>(data["Data"].ToString());
+            }
+            throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
+        }
+
+        /// <summary>
+        /// Async Get list of request information as json
+        /// </summary>
+        /// <param name="take">Count of responce list</param>
+        /// <param name="skip">Numbers of skip entries</param>
+        /// <returns></returns>
+        public async Task<string> GetListRequestInfoAsJsonAsyncTask(int take = 1000, int skip = 0)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/List/?api-key={apikey}&Take={_take}&Skip={_skip}", Method.GET);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddUrlSegment("_take", take.ToString());
+            request.AddUrlSegment("_skip", skip.ToString());
+            var cancellationToken = new CancellationToken();
+            var response = await client.ExecuteTaskAsync(request, cancellationToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+                return response.Content;
+            throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
+        }
+
+        /// <summary>
+        /// Get list of request information as json
+        /// </summary>
+        /// <param name="take">Count of responce list</param>
+        /// <param name="skip">Numbers of skip entries</param>
+        /// <returns></returns>
+        public string GetListRequestInfoAsJson(int take = 1000, int skip = 0)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/List/?api-key={apikey}&Take={_take}&Skip={_skip}", Method.GET);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddUrlSegment("_take", take.ToString());
+            request.AddUrlSegment("_skip", skip.ToString());
+            var response = client.Execute(request);
+            if (response.StatusCode == HttpStatusCode.OK)
+                return response.Content;
+            throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
+        }
+
+
+
+
+
+        /// <summary>
+        /// Async Get list of request information by list of requestId
+        ///  </summary>
+        /// <param name="requestId">Enumerable of guid</param>
+        /// <returns></returns>
+        public async Task<IEnumerable<RequestInfo>> GetListRequestInfoAsyncTask<T>(IEnumerable<T> requestId)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/ListById?api-key={apikey}", Method.POST);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddParameter("query", string.Join(";", requestId.ToArray()));
+            var cancellationToken = new CancellationToken();
+            var response = await client.ExecuteTaskAsync(request, cancellationToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                if ((bool)data["Result"])
+                    return JsonConvert.DeserializeObject<IEnumerable<RequestInfo>>(data["Data"].ToString());
+            }
+            throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
+        }
+
+        /// <summary>
+        /// Async Get list of request information by list of requestId
+        ///  </summary>
+        /// <param name="requestId">Enumerable of guid</param>
+        /// <returns></returns>
+        public IEnumerable<RequestInfo> GetListRequestInfo<T>(IEnumerable<T> requestId)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/ListById?api-key={apikey}", Method.POST);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddParameter("query", string.Join(";", requestId.ToArray()));
+            var response = client.Execute(request);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                if ((bool)data["Result"])
+                    return JsonConvert.DeserializeObject<IEnumerable<RequestInfo>>(data["Data"].ToString());
+            }
+            throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
+        }
+
+        /// <summary>
+        /// Async Get as json list of request information by list of requestId
+        ///  </summary>
+        /// <param name="requestId">Enumerable of guid</param>
+        /// <returns></returns>
+        public async Task<string> GetListRequestInfoAsJsonAsyncTask<T>(IEnumerable<T> requestId)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/ListById?api-key={apikey}", Method.POST);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddParameter("query", string.Join(";", requestId.ToArray()));
+            var cancellationToken = new CancellationToken();
+            var response = await client.ExecuteTaskAsync(request, cancellationToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                if ((bool)data["Result"])
+                    return data["Data"].ToString();
+            }
+            throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
+        }
+
+        /// <summary>
+        /// Async Get list of request information by list of requestId
+        ///  </summary>
+        /// <param name="requestId">Enumerable of guid</param>
+        /// <returns></returns>
+        public string GetListRequestInfoAsJson<T>(IEnumerable<T> requestId)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/ListById?api-key={apikey}", Method.POST);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddParameter("query", string.Join(";", requestId.ToArray()));
+            var response = client.Execute(request);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                if ((bool)data["Result"])
+                    return data["Data"].ToString();
+            }
+            throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
+        }
+
+        /// <summary>
         /// Async Download result data for request
         /// </summary>
         /// <param name="requestId">RequestId with strong filter by user(api-key)</param>
         /// <param name="format">xml/pdf/html by ResultFormat enum</param>
         /// <returns></returns>
-        public async Task<FileResult> GetResultAsyncTask(Guid requestId, ResultFormat format)
+        public async Task<FileResult> GetResultAsyncTask<T>(T requestId, ResultFormat format)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Result/{requestId}?api-key={apikey}{_params}", Method.GET);
@@ -466,7 +651,7 @@ namespace Kadnet.Api
         /// <param name="requestId">RequestId with strong filter by user(api-key)</param>
         /// <param name="format">xml/pdf/html by ResultFormat enum</param>
         /// <returns></returns>
-        public FileResult GetResult(Guid requestId, ResultFormat format)
+        public FileResult GetResult<T>(T requestId, ResultFormat format)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Result/{requestId}?api-key={apikey}{params}", Method.GET);
@@ -492,7 +677,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<HistoryEntry>> GetHistoryAsyncTask(Guid requestId)
+        public async Task<IEnumerable<HistoryEntry>> GetHistoryAsyncTask<T>(T requestId)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/History/{requestId}?api-key={apikey}{params}", Method.GET);
@@ -515,7 +700,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId"></param>
         /// <returns></returns>
-        public IEnumerable<HistoryEntry> GetHistory(Guid requestId)
+        public IEnumerable<HistoryEntry> GetHistory<T>(T requestId)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/History/{requestId}?api-key={apikey}{params}", Method.GET);
@@ -538,7 +723,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId"></param>
         /// <returns></returns>
-        public async Task<bool> DeleteAsyncTask(Guid requestId)
+        public async Task<bool> DeleteAsyncTask<T>(T requestId)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Delete/{requestId}?api-key={apikey}{params}", Method.GET);
@@ -561,7 +746,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId"></param>
         /// <returns></returns>
-        public bool Delete(Guid requestId)
+        public bool Delete<T>(T requestId)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Delete/{requestId}?api-key={apikey}{params}", Method.GET);
@@ -585,7 +770,7 @@ namespace Kadnet.Api
         /// <param name="requestId"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public async Task<FileResult> GetOrderResultAsyncTask(Guid requestId, ResultFormat format)
+        public async Task<FileResult> GetOrderResultAsyncTask<T>(T requestId, ResultFormat format)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/OrderResult/{requestId}?api-key={apikey}{params}", Method.GET);
@@ -612,7 +797,7 @@ namespace Kadnet.Api
         /// <param name="requestId"></param>
         /// <param name="format"></param>
         /// <returns></returns>
-        public FileResult GetOrderResult(Guid requestId, ResultFormat format)
+        public FileResult GetOrderResult<T>(T requestId, ResultFormat format)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/OrderResult/{requestId}?api-key={apikey}{params}", Method.GET);
@@ -631,6 +816,51 @@ namespace Kadnet.Api
                 return fr;
             }
             throw new Exception($"Cannot pull request information. Request Id={requestId}. Response status={response.ResponseStatus} Send this information to support@kadnet.ru");
+        }
+
+        /// <summary>
+        /// Async Delete order entry
+        /// </summary>
+        /// <param name="requestId"></param>
+        /// <returns></returns>
+        public async Task<bool> DeleteOrderAsyncTask<T>(T orderId)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/DeleteOrder/{requestId}?api-key={apikey}{params}", Method.GET);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddUrlSegment("params", _params);
+            request.AddUrlSegment("requestId", orderId.ToString());
+            var cancellationToken = new CancellationToken();
+            var response = await client.ExecuteTaskAsync(request, cancellationToken);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                return (bool)data["Result"];
+            }
+            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+        }
+
+        /// <summary>
+        /// Delete order by orderId. Delete all requests with similar order Id
+        /// </summary>
+        /// <param name="orderId"></param>
+        /// <returns></returns>
+        public bool DeleteOrder<T>(T orderId)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Requests/DeleteOrder/{requestId}?api-key={apikey}{params}", Method.GET);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddUrlSegment("params", _params);
+            request.AddUrlSegment("requestId", orderId.ToString());
+            var response = client.Execute(request);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                return (bool)data["Result"];
+            }
+            throw new Exception($"Response Error. Response status = {response.StatusCode}");
         }
 
         private static string Base64Decode(string base64EncodedData)
