@@ -62,7 +62,7 @@ namespace Kadnet.Api
         /// <param name="numbers">one number:"66:41:0402033:2002" or list of numbers:"66:41:0402033:2266;66:41:0402033:2502"</param>
         /// <param name="comment">no comments</param>
         /// <returns>IEnumerable of CadastralObjectInfo</returns>
-        public async Task<IEnumerable<CadastralObjectInfo>> CheckNumbersAsyncTask(string numbers, string comment = null)
+        public async Task<IEnumerable<CadastralObjectInfo>> CheckNumbersAsyncTask(string numbers, string comment = null, CancellationToken cancellationToken = new CancellationToken())
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/CheckNumbers?api-key={apikey}" + _params, Method.POST);
@@ -71,7 +71,6 @@ namespace Kadnet.Api
             request.AddParameter("query", numbers);
 
             if (!string.IsNullOrEmpty(comment)) request.AddParameter("comment", comment);
-            var cancellationToken = new CancellationToken();
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -132,7 +131,7 @@ namespace Kadnet.Api
         /// <param name="address">Address. Example:"Екатеринбург, ул. Малопрудная 5", "Екатеринбург, ул. Щорса 109, кв. 10"</param>
         /// <param name="comment">no comments</param>
         /// <returns></returns>
-        public async Task<IEnumerable<CadastralObjectInfo>> CheckAddressAsyncTask(string address, string comment = null)
+        public async Task<IEnumerable<CadastralObjectInfo>> CheckAddressAsyncTask(string address, string comment = null, CancellationToken cancellationToken = new CancellationToken())
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/CheckAddress?api-key={apikey}" + _params, Method.POST);
@@ -141,7 +140,7 @@ namespace Kadnet.Api
             request.AddParameter("query", address);
 
             if (!string.IsNullOrEmpty(comment)) request.AddParameter("comment", comment);
-            var cancellationToken = new CancellationToken();
+
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -229,7 +228,7 @@ namespace Kadnet.Api
         /// <param name="requestType">RequestType enum. General info about object or Right List of object</param>
         /// <param name="priority">Priority  from 0 to 100. Lazy=0, Greedy=100</param>
         /// <returns>RequestTicket object</returns>
-        public async Task<RequestTicket> CreateRequestAsyncTask(CadastralObjectInfo coi, RequestType requestType, int priority = 80)
+        public async Task<RequestTicket> CreateRequestAsyncTask(CadastralObjectInfo coi, RequestType requestType, int priority = 80,  CancellationToken cancellationToken = new CancellationToken())
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Create?api-key={apikey}" + _params, Method.POST);
@@ -246,7 +245,7 @@ namespace Kadnet.Api
             request.AddParameter("RequestType", requestType);
             request.AddParameter("ObjectType", coi.ObjectType);
             request.AddParameter("Region", coi.Region);
-            var cancellationToken = new CancellationToken();
+
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -351,7 +350,7 @@ namespace Kadnet.Api
         /// </summary>
         /// <param name="requestId">request id</param>
         /// <returns></returns>
-        public async Task<RequestInfo> GetRequestInfoAsyncTask<T>(T requestId)
+        public async Task<RequestInfo> GetRequestInfoAsyncTask<T>(T requestId,  CancellationToken cancellationToken = new CancellationToken())
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Info/{requestId}?api-key={apikey}" + _params, Method.GET);
@@ -359,7 +358,6 @@ namespace Kadnet.Api
             request.AddUrlSegment("apikey", _token);
             request.AddUrlSegment("requestId", requestId.ToString());
 
-            var cancellationToken = new CancellationToken();
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
             {
@@ -627,7 +625,7 @@ namespace Kadnet.Api
         /// <param name="requestId">RequestId with strong filter by user(api-key)</param>
         /// <param name="format">xml/pdf/html by ResultFormat enum</param>
         /// <returns></returns>
-        public async Task<FileResult> GetResultAsyncTask<T>(T requestId, ResultFormat format)
+        public async Task<FileResult> GetResultAsyncTask<T>(T requestId, ResultFormat format,  CancellationToken cancellationToken = new CancellationToken())
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/Result/{requestId}?api-key={apikey}" + _params, Method.GET);
@@ -636,7 +634,6 @@ namespace Kadnet.Api
             request.AddUrlSegment("requestId", requestId.ToString());
             request.AddParameter("type", format);
 
-            var cancellationToken = new CancellationToken();
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
             {
