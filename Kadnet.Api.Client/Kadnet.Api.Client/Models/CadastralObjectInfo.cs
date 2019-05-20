@@ -21,7 +21,31 @@ namespace Kadnet.Api.Models
         public string Name { get; set; }
         public string Level { get; set; }
         public double Area { get; set; }
+        public double CadCost { get; set; }
+        public string Status { get; set; }
         public string Year { get; set; }
         public bool IsCanceled { get; set; }
+
+        public List<Right> Rights { get; set; }
+    }
+
+    public class Right
+    {
+        public string Number { get; set; }
+
+        public string Description { get; set; }
+
+        public DateTime Date { get; set; }
+
+        public List<Encumbrance> Encumbrances { get; set; }
+    }
+
+    public class Encumbrance
+    {
+        public string Number { get; set; }
+
+        public string Description { get; set; }
+
+        public DateTime Date { get; set; }
     }
 }

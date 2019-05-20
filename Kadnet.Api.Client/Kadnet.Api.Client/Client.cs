@@ -32,6 +32,29 @@ namespace Kadnet.Api
         /// <summary>
         /// Check cadastral numbers and get minimal information about it as enumerable collection
         /// </summary>
+        /// <param name="inn">ИНН, например 6686024606</param>
+        /// <returns>IEnumerable of CadastralObjectInfo</returns>
+        public IEnumerable<SuggestPartyResponse.Suggestions> CheckInn(string inn)
+        {
+            var client = new RestClient(_baseUrl);
+            var request = new RestRequest("Org/CheckInn?api-key={apikey}" + _params, Method.POST);
+            request.AddHeader("content-type", "application/x-www-form-urlencoded");
+            request.AddUrlSegment("apikey", _token);
+            request.AddParameter("inn", inn);
+
+            var response = client.Execute(request);
+            if (response.StatusCode == HttpStatusCode.OK)
+            {
+                var data = JObject.Parse(response.Content);
+                if ((bool)data["Result"])
+                    return JsonConvert.DeserializeObject<IEnumerable<SuggestPartyResponse.Suggestions>>(data["Data"].ToString());
+            }
+            return Enumerable.Empty<SuggestPartyResponse.Suggestions>();
+        }
+
+        /// <summary>
+        /// Check cadastral numbers and get minimal information about it as enumerable collection
+        /// </summary>
         /// <param name="numbers">one number:"66:41:0402033:2002" or list of numbers:"66:41:0402033:2266;66:41:0402033:2502"</param>
         /// <param name="comment">no comments</param>
         /// <returns>IEnumerable of CadastralObjectInfo</returns>
@@ -41,7 +64,7 @@ namespace Kadnet.Api
             var request = new RestRequest("Requests/CheckNumbers?api-key={apikey}" + _params, Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddUrlSegment("apikey", _token);
-            request.AddParameter("query", numbers);
+            request.AddParameter("query", numbers.Trim());
 
             if (!string.IsNullOrEmpty(comment)) request.AddParameter("comment", comment);
             var response = client.Execute(request);
@@ -51,8 +74,7 @@ namespace Kadnet.Api
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<CadastralObjectInfo>>(data["Data"].ToString());
             }
-            //TODO: Уточнить тип
-            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+            return Enumerable.Empty<CadastralObjectInfo>();
         }
 
 
@@ -79,8 +101,7 @@ namespace Kadnet.Api
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<CadastralObjectInfo>>(data["Data"].ToString());
             }
-            //TODO: Уточнить тип
-            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+            return Enumerable.Empty<CadastralObjectInfo>();
         }
 
         /// <summary>
@@ -102,7 +123,7 @@ namespace Kadnet.Api
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
                 return response.Content;
-            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+            return null;
         }
 
         /// <summary>
@@ -123,7 +144,7 @@ namespace Kadnet.Api
             var response = client.Execute(request);
             if (response.StatusCode == HttpStatusCode.OK)
                 return response.Content;
-            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+            return null;
         }
 
         /// <summary>
@@ -149,8 +170,7 @@ namespace Kadnet.Api
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<CadastralObjectInfo>>(data["Data"].ToString());
             }
-            //TODO: Уточнить тип
-            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+            return Enumerable.Empty<CadastralObjectInfo>();
         }
 
         /// <summary>
@@ -159,13 +179,14 @@ namespace Kadnet.Api
         /// <param name="address">Address. Example:"Екатеринбург, ул. Малопрудная 5", "Екатеринбург, ул. Щорса 109, кв. 10"</param>
         /// <param name="comment">no comments</param>
         /// <returns></returns>
-        public IEnumerable<CadastralObjectInfo> CheckAddress(string address, string comment = null)
+        public IEnumerable<CadastralObjectInfo> CheckAddress(string address, bool detail = true, string comment = null)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/CheckAddress?api-key={apikey}" + _params, Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddUrlSegment("apikey", _token);
             request.AddParameter("query", address);
+            request.AddParameter("detail", detail);
 
             if (!string.IsNullOrEmpty(comment)) request.AddParameter("comment", comment);
             var response = client.Execute(request);
@@ -175,8 +196,7 @@ namespace Kadnet.Api
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<CadastralObjectInfo>>(data["Data"].ToString());
             }
-            //TODO: Уточнить тип
-            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+            return null;
         }
 
         /// <summary>
@@ -185,20 +205,21 @@ namespace Kadnet.Api
         /// <param name="address">Address. Example:"Екатеринбург, ул. Малопрудная 5", "Екатеринбург, ул. Щорса 109, кв. 10"</param>
         /// <param name="comment">no comments</param>
         /// <returns>JSON string</returns>
-        public async Task<string> CheckAddressAsJsonAsyncTask(string address, string comment = null)
+        public async Task<string> CheckAddressAsJsonAsyncTask(string address, bool detail = true, string comment = null)
         {
             var client = new RestClient(_baseUrl);
             var request = new RestRequest("Requests/CheckAddress?api-key={apikey}" + _params, Method.POST);
             request.AddHeader("content-type", "application/x-www-form-urlencoded");
             request.AddUrlSegment("apikey", _token);
             request.AddParameter("query", address);
+            request.AddParameter("detail", detail);
 
             if (!string.IsNullOrEmpty(comment)) request.AddParameter("comment", comment);
             var cancellationToken = new CancellationToken();
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
                 return response.Content;
-            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+            return null;
         }
 
         /// <summary>
@@ -219,11 +240,11 @@ namespace Kadnet.Api
             var response = client.Execute(request);
             if (response.StatusCode == HttpStatusCode.OK)
                 return response.Content;
-            throw new Exception($"Response Error. Response status = {response.StatusCode}");
+            return null;
         }
 
         /// <summary>
-        /// Async Create request to Rosreestr. Core functionallity
+        /// Async Create request to Rosreestr.
         /// </summary>
         /// <param name="coi">Pull this object from CheckAddress/CheckNumbers methods</param>
         /// <param name="requestType">RequestType enum. General info about object or Right List of object</param>
@@ -250,9 +271,12 @@ namespace Kadnet.Api
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
             {
-                return JsonConvert.DeserializeObject<RequestTicket>(response.Content);
+                var data = JObject.Parse(response.Content);
+                if ((bool) data["Result"])
+                    return JsonConvert.DeserializeObject<RequestTicket>(response.Content);
+                return null;
             }
-            throw new Exception($"Create request failed. Request Id={coi.Id}. Send this information to support@kadnet.ru");
+            return null;
         }
 
         /// <summary>
@@ -284,7 +308,7 @@ namespace Kadnet.Api
             {
                 return JsonConvert.DeserializeObject<RequestTicket>(response.Content);
             }
-            throw new Exception($"Create request failed. Request Id={coi.Id}. Send this information to support@kadnet.ru");
+            return null;
         }
 
         /// <summary>
@@ -314,7 +338,7 @@ namespace Kadnet.Api
             var response = await client.ExecuteTaskAsync(request, cancellationToken);
             if (response.StatusCode == HttpStatusCode.OK)
                 return response.Content;
-            throw new Exception($"Create request failed. Request Id={coi.Id}. Send this information to support@kadnet.ru");
+            return null;
         }
 
         /// <summary>
@@ -343,7 +367,7 @@ namespace Kadnet.Api
             var response = client.Execute(request);
             if (response.StatusCode == HttpStatusCode.OK)
                 return response.Content;
-            throw new Exception($"Create request failed. Request Id={coi.Id}. Send this information to support@kadnet.ru");
+           return null;
         }
 
         /// <summary>
@@ -366,9 +390,9 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<RequestInfo>(data["Data"].ToString());
-                throw new FormatException($"Неожиданный ответ от сервера: {data}");
+                throw new FormatException($"Неожиданный ответ от сервера: {data["Message"]}");
             }
-            throw new Exception($"Cannot pull request information. Request Id={requestId}. Send this information to support@kadnet.ru");
+            return null;
         }
 
         /// <summary>
@@ -390,8 +414,9 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<RequestInfo>(data["Data"].ToString());
+                throw new FormatException($"Неожиданный ответ от сервера: {data["Message"]}");
             }
-            throw new Exception($"Cannot pull request information. Request Id={requestId}. Send this information to support@kadnet.ru");
+            return null;
         }
 
         /// <summary>
@@ -455,6 +480,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<RequestInfo>>(data["Data"].ToString());
+                throw new FormatException($"Неожиданный ответ от сервера: {data["Message"]}");
             }
             throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
         }
@@ -480,6 +506,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<RequestInfo>>(data["Data"].ToString());
+                throw new FormatException($"Неожиданный ответ от сервера: {data["Message"]}");
             }
             throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
         }
@@ -547,6 +574,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<RequestInfo>>(data["Data"].ToString());
+                throw new FormatException($"Неожиданный ответ от сервера: {data["Message"]}");
             }
             throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
         }
@@ -570,6 +598,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<RequestInfo>>(data["Data"].ToString());
+                throw new FormatException($"Неожиданный ответ от сервера: {data["Message"]}");
             }
             throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
         }
@@ -594,6 +623,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return data["Data"].ToString();
+                return $"Неожиданный ответ от сервера: {data["Message"]}";
             }
             throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
         }
@@ -617,6 +647,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return data["Data"].ToString();
+                return $"Неожиданный ответ от сервера: {data["Message"]}";
             }
             throw new Exception($"Cannot pull list of request information for api-key {_token}. Send this information to support@kadnet.ru");
         }
@@ -696,6 +727,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<HistoryEntry>>(data["Data"].ToString());
+                throw new FormatException($"Неожиданный ответ от сервера: {data["Message"]}");
             }
             throw new Exception($"Response Error. Response status = {response.StatusCode}");
         }
@@ -719,6 +751,7 @@ namespace Kadnet.Api
                 var data = JObject.Parse(response.Content);
                 if ((bool) data["Result"])
                     return JsonConvert.DeserializeObject<IEnumerable<HistoryEntry>>(data["Data"].ToString());
+                throw new FormatException($"Неожиданный ответ от сервера: {data["Message"]}");
             }
             throw new Exception($"Response Error. Response status = {response.StatusCode}");
         }
@@ -868,17 +901,14 @@ namespace Kadnet.Api
             }
             throw new Exception($"Response Error. Response status = {response.StatusCode}");
         }
-
         public string GetClientSettings()
         {
             return $"url={_baseUrl};token={_token};param={_params}";
         }
-
         public string GetClientUrl()
         {
             return $"api-key={_token}{_params}";
         }
-
         private static string Base64Decode(string base64EncodedData)
         {
             var base64EncodedBytes = System.Convert.FromBase64String(base64EncodedData);

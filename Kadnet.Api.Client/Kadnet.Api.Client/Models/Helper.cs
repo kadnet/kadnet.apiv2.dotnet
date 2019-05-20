@@ -20,7 +20,8 @@ namespace Kadnet.Api.Models
     {
         Xml,
         Pdf,
-        Html
+        Html,
+        PdfProk
     }
 
     public static class Helper
